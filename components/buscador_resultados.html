@@ -1,20 +1,28 @@
 <template id="template-search-product">
-    <a href="#" class="flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors border-b border-gray-100 dark:border-gray-700">
-        <div class="w-12 h-12 rounded-lg bg-white p-1 shrink-0">
-            <img class="search-img w-full h-full object-contain"> </div>
-        <div class="min-w-0">
-            <p class="search-name text-sm font-bold text-gray-800 dark:text-white truncate"></p> <p class="search-price text-xs text-primary font-black"></p> </div>
+    <a href="#"
+        class="flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors border-b border-gray-100 dark:border-gray-700">
+        <div class="w-12 h-12 rounded-lg bg-white p-1 shrink-0 border border-gray-50">
+            <img class="search-img w-full h-full object-contain">
+        </div>
+        <div class="flex-1 min-w-0">
+            <p class="search-name text-sm font-bold text-gray-800 dark:text-white truncate"></p>
+            <p class="search-price text-xs text-primary font-black"></p>
+        </div>
     </a>
 </template>
 
 <template id="template-search-category">
-    <li>
-        <a href="#" class="block p-2 text-sm font-bold text-gray-700 dark:text-gray-300 hover:text-primary"></a>
+    <li class="group">
+        <a href="#"
+            class="block p-2 text-sm font-bold text-gray-700 dark:text-gray-300 hover:text-primary hover:bg-white dark:hover:bg-gray-800 rounded-lg transition-all whitespace-normal leading-tight">
+        </a>
     </li>
 </template>
 
 <template id="template-search-subcategory">
     <li>
-        <a href="#" class="block p-2 text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-primary"></a>
+        <a href="#"
+            class="block p-2 pl-4 text-[11px] font-medium text-gray-500 dark:text-gray-400 hover:text-primary transition-colors whitespace-normal leading-snug">
+        </a>
     </li>
 </template>
