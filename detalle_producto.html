@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Detalle Productos |Farmacia Cosmos</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&amp;display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <style>
+        /* 1. FUERZA DE RENDERIZADO PARA ICONOS */
+        .material-icons {
+            font-family: 'Material Icons' !important;
+            /* !important evita que otras fuentes lo pisen */
+            font-weight: normal;
+            font-style: normal;
+            display: inline-block;
+            line-height: 1;
+            text-transform: none;
+            letter-spacing: normal;
+            word-wrap: normal;
+            white-space: nowrap;
+            direction: ltr;
+            -webkit-font-smoothing: antialiased;
+            text-rendering: optimizeLegibility;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* 2. LIMPIEZA DE SCROLLBAR (GALERÍA DEL MODAL) */
+        #modal-thumbs-list {
+            -ms-overflow-style: none !important;
+            scrollbar-width: none !important;
+        }
+
+        #modal-thumbs-list::-webkit-scrollbar {
+            display: none !important;
+        }
+
+        /* 3. CONTENEDOR DE MEDIA (EVITAR RECORTES) */
+        .video-wrapper-modal {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            /* Permite que el fondo del modal mande */
+            padding: 1rem;
+            /* Margen de seguridad para que no toque los bordes */
+        }
+
+        /* Ajuste específico para que el video no se corte y sea responsivo */
+        .video-wrapper-modal iframe,
+        .video-wrapper-modal video {
+            width: 100% !important;
+            height: auto !important;
+            max-width: 90vw !important;
+            /* Limita el ancho al 90% de la pantalla */
+            max-height: 85vh !important;
+            /* Limita el alto para dejar espacio a las miniaturas */
+            aspect-ratio: 16 / 9;
+            /* Proporción estándar */
+            object-fit: contain !important;
+            /* Asegura que se vea todo el contenido */
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        /* 4. MEJORAS VISUALES PARA EL MODAL */
+        #modal-zoom-container {
+            backdrop-filter: blur(8px);
+            /* Efecto de desenfoque al fondo */
+            transition: opacity 0.3s ease;
+        }
+
+        /* Estilo para las flechas de navegación dentro del modal */
+        #modal-prev,
+        #modal-next {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(4px);
+            border-radius: 50%;
+            padding: 10px;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+        #modal-prev:hover,
+        #modal-next:hover {
+            background: var(--color-primary, #00b19d);
+            /* Usa tu color principal */
+            color: white;
+            transform: scale(1.1);
+        }
+
+        /* Estilo para las miniaturas activas */
+        .modal-thumb-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-width: 2px;
+        }
+
+        .modal-thumb-card.ring-primary {
+            transform: translateY(-5px);
+            /* Pequeña elevación al estar activa */
+        }
+    </style>
+</head>
+
+<body class="bg-background-light dark:bg-gray-900 font-[Poppins] transition-colors duration-300">
+
+    <header id="layout-header" class="font-display shadow-md relative z-30 bg-white"></header>
+    <div id="layout-cart"></div>
+    <nav id="layout-nav" class="bg-primary shadow-lg relative z-20"></nav>
+
+    <main class="max-w-7xl mx-auto px-4 py-8 flex-grow w-full">
+        <nav aria-label="Breadcrumb" class="flex mb-8 text-xs md:text-sm text-gray-500 dark:text-gray-400">
+            <ol class="inline-flex items-center space-x-1 md:space-x-2">
+                <li class="inline-flex items-center">
+                    <a class="inline-flex items-center hover:text-primary dark:hover:text-white transition-colors"
+                        href="index.html">
+                        <span class="material-icons text-base mr-2">home</span>Inicio
+                    </a>
+                </li>
+
+                <li id="breadcrumb-padre-item" class="hidden">
+                    <div class="flex items-center">
+                        <span class="material-icons text-gray-400 text-base">chevron_right</span>
+                        <a id="breadcrumb-categoria-padre-link"
+                            class="ml-1 md:ml-2 hover:text-primary dark:hover:text-white transition-colors"
+                            href="#">Padre</a>
+                    </div>
+                </li>
+
+                <li>
+                    <div class="flex items-center">
+                        <span class="material-icons text-gray-400 text-base">chevron_right</span>
+                        <a id="breadcrumb-categoria-link"
+                            class="ml-1 md:ml-2 hover:text-primary dark:hover:text-white transition-colors"
+                            href="productos.html">Catálogo</a>
+                    </div>
+                </li>
+
+                <li aria-current="page">
+                    <div class="flex items-center">
+                        <span class="material-icons text-gray-400 text-base">chevron_right</span>
+                        <span id="breadcrumb-producto-nombre"
+                            class="ml-1 md:ml-2 font-medium text-gray-900 dark:text-white">Cargando...</span>
+                    </div>
+                </li>
+            </ol>
+        </nav>
+
+        <div id="detalle-producto-container"
+            class="bg-white dark:bg-surface-dark rounded-3xl border border-gray-100 dark:border-gray-700 p-8 md:p-12 mb-12 min-h-[500px]">
+            <div class="flex items-center justify-center h-full py-20">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            </div>
+        </div>
+        <div id="modal-zoom-container"
+            class="hidden fixed inset-0 z-[100] bg-black/95 flex-col items-center justify-center">
+
+            <button id="cerrar-modal"
+                class="absolute top-6 right-6 z-[120] text-white hover:text-primary transition-colors">
+                <span class="material-icons text-5xl">close</span>
+            </button>
+
+            <div id="modal-media-content"
+                class="relative w-full h-[60vh] md:h-[70vh] flex items-center justify-center overflow-hidden px-4">
+                <button id="modal-prev" class="absolute left-4 z-[110] text-white/50 hover:text-white transition-all">
+                    <span class="material-icons text-6xl">chevron_left</span>
+                </button>
+
+                <img id="modalImagen" src=""
+                    class="max-w-full max-h-full object-contain transition-transform duration-300 ease-out cursor-zoom-in">
+
+                <button id="modal-next" class="absolute right-4 z-[110] text-white/50 hover:text-white transition-all">
+                    <span class="material-icons text-6xl">chevron_right</span>
+                </button>
+            </div>
+
+            <div class="flex flex-col items-center w-full mt-4">
+                <button id="modal-toggle-gallery"
+                    class="material-icons text-white/70 hover:text-primary transition-all">
+                    grid_view
+                </button>
+
+                <div id="modal-thumbs-list" class="flex gap-4 p-4 max-w-[90%] overflow-x-auto">
+                </div>
+            </div>
+        </div>
+        <div id="productos-relacionados-container" class="mt-8 mb-12"></div>
+    </main>
+
+    <footer id="layout-footer" class="bg-white border-t border-gray-100 pt-16 pb-8"></footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    <script src="js/config/tailwindConfig.js"></script>
+    <script type="module" src="js/controllers/configController.js"></script>
+    <script type="module" src="js/main.js"></script>
+    <script type="module" src="js/controllers/detalleProductoController.js"></script>
+</body>
+
+</html>

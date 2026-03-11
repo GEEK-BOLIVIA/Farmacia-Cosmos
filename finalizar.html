@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Farmacia Cosmos - Finalización de Cotización</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 min-h-screen flex flex-col">
+
+    <header id="layout-header" class="font-display shadow-md relative z-30 bg-white"></header>
+
+    <nav id="layout-nav" class="bg-primary shadow-lg relative z-20"></nav>
+    <div id="layout-cart"></div>
+    <main class="max-w-7xl mx-auto px-4 py-12 flex-grow w-full">
+        <div class="mb-10">
+            <h2
+                class="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight uppercase border-b-2 border-primary inline-block pb-1">
+                DETALLE DE PRODUCTOS
+            </h2>
+
+            <div id="contenedor-resumen" class="mt-8 space-y-4">
+                <div class="text-center py-10">
+                    <p class="text-gray-500 animate-pulse">Cargando tus productos...</p>
+                </div>
+            </div>
+        </div>
+
+        <div
+            class="mt-16 bg-white dark:bg-surface-dark rounded-3xl p-8 md:p-12 border border-gray-100 dark:border-gray-700 shadow-sm">
+            <h2
+                class="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight uppercase border-b-2 border-primary inline-block pb-1 mb-10">
+                DATOS DE CONTACTO
+            </h2>
+
+            <form id="form-cotizacion" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Nombre *</label>
+                    <input id="cliente-nombre"
+                        class="w-full h-12 px-4 rounded-lg bg-gray-50 border border-gray-200 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary dark:bg-gray-800 dark:border-gray-600 dark:text-white transition-all"
+                        placeholder="Tu nombre" type="text" required />
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Apellido *</label>
+                    <input id="cliente-apellido"
+                        class="w-full h-12 px-4 rounded-lg bg-gray-50 border border-gray-200 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary dark:bg-gray-800 dark:border-gray-600 dark:text-white transition-all"
+                        placeholder="Tu apellido" type="text" required />
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Correo *</label>
+                    <input id="cliente-correo"
+                        class="w-full h-12 px-4 rounded-lg bg-gray-50 border border-gray-200 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary dark:bg-gray-800 dark:border-gray-600 dark:text-white transition-all"
+                        placeholder="ejemplo@correo.com" type="email" required />
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Ciudad *</label>
+                    <input id="cliente-ciudad"
+                        class="w-full h-12 px-4 rounded-lg bg-gray-50 border border-gray-200 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary dark:bg-gray-800 dark:border-gray-600 dark:text-white transition-all"
+                        placeholder="Ciudad de residencia" type="text" />
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Empresa
+                        (Opcional)</label>
+                    <input id="cliente-empresa"
+                        class="w-full h-12 px-4 rounded-lg bg-gray-50 border border-gray-200 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary dark:bg-gray-800 dark:border-gray-600 dark:text-white transition-all"
+                        placeholder="Nombre de tu empresa" type="text" />
+                </div>
+            </form>
+
+            <div class="mt-12 flex justify-center">
+                <button id="btn-enviar-cotizacion"
+                    class="bg-primary hover:bg-primary-dark text-white font-extrabold text-xl py-4 px-12 rounded-xl shadow-lg hover:shadow-primary/20 hover:-translate-y-1 transition-all duration-300 flex items-center gap-3">
+                    <span class="material-icons">send</span>
+                    ENVIAR COTIZACIÓN POR WHATSAPP
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <footer id="layout-footer" class="bg-white border-t border-gray-100 pt-16 pb-8"></footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    <script src="js/config/tailwindConfig.js"></script>
+    <script type="module" src="js/controllers/configController.js"></script>
+    <script type="module" src="js/main.js"></script>
+    <script type="module" src="js/controllers/checkoutController.js"></script>
+</body>
+
+</html>
