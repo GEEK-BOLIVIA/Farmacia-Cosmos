@@ -4,12 +4,40 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Farmacia Cosmos</title>
+
+    <title>Farmacia Cosmos | Salud y Bienestar en Cochabamba</title>
+    <meta name="description"
+        content="Tu farmacia de confianza en Cochabamba. Medicamentos, cuidado personal y atención farmacéutica profesional con envíos rápidos por WhatsApp.">
+    <meta name="keywords"
+        content="farmacia cochabamba, medicamentos bolivia, farmacia cosmos, salud, bienestar, farmacia a domicilio">
+    <link rel="canonical" href="https://farmaciacosmos.bo/">
+    <meta name="theme-color" content="#004691">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Farmacia Cosmos - Cuidamos de ti">
+    <meta property="og:description"
+        content="Atención farmacéutica profesional y amplio stock de medicamentos. ¡Haz tu consulta ahora por WhatsApp!">
+    <meta property="og:image" content="img/og-image.jpg">
+    <meta property="og:url" content="https://farmaciacosmos.bo/">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Farmacia Cosmos">
+    <meta name="twitter:description" content="Todo lo que necesitas para tu salud en un solo lugar.">
+    <meta name="twitter:image" content="img/og-image.jpg">
+
+    <link rel="icon" type="image/svg+xml" href="images/logo-cosmos-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="images/logo-cosmos-icon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="images/logo-cosmos-icon.png">
+    <link rel="manifest" href="site.webmanifest">
+
     <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
         rel="stylesheet" />
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -24,6 +52,36 @@
             scrollbar-width: none;
         }
     </style>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Pharmacy",
+      "name": "Farmacia Cosmos",
+      "image": "https://farmaciacosmos.com/images/logo-cosmos.jpg",
+      "url": "https://farmaciacosmos.com/",
+      "telephone": "+59167540115",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Tu dirección física",
+        "addressLocality": "Cochabamba",
+        "addressCountry": "BO"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": -17.3935,
+        "longitude": -66.1570
+      },
+      "openingHoursSpecification": {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": [
+          "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"
+        ],
+        "opens": "08:00",
+        "closes": "22:00"
+      }
+    }
+    </script>
 </head>
 
 <body class="bg-gray-50 min-h-screen flex flex-col">
@@ -31,9 +89,10 @@
     <header id="layout-header" class="font-display shadow-md relative z-30 bg-white"></header>
 
     <nav id="layout-nav" class="bg-primary shadow-lg relative z-20"></nav>
+
     <div id="layout-cart"></div>
-    <main id="carruseles-hub">
-    </main>
+
+    <main id="carruseles-hub"></main>
 
     <footer id="layout-footer" class="bg-white border-t border-gray-100 pt-16 pb-8"></footer>
 
