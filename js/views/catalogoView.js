@@ -1,5 +1,5 @@
 export const catalogoView = {
-     CONFIG: {
+    CONFIG: {
         WHATSAPP_FARMACIA: "67540115" // Tu número aquí
     },
     // 1. Referencias al DOM
@@ -356,36 +356,60 @@ export const catalogoView = {
     renderSidebarCategorias(categorias, seleccionadaId = null) {
         if (!this.sidebarCategoriasContainer) return;
 
-        // Convertimos a String para comparar correctamente con el value del input
         const idActual = seleccionadaId !== null ? seleccionadaId.toString() : 'todo';
 
         const crearRadioHTML = (id, nombre, isChecked) => `
-            <label class="flex items-center gap-3 p-2 cursor-pointer hover:bg-primary/5 dark:hover:bg-primary/10 rounded-xl transition-all group">
-                <div class="relative flex items-center justify-center w-5 h-5 shrink-0">
-                    <input type="radio" name="subcategoria-filter" value="${id}" 
-                        class="cat-filter-radio absolute opacity-0 w-full h-full cursor-pointer z-10" 
-                        ${isChecked ? 'checked' : ''}>
-                    
-                    <div class="w-full h-full border-2 rounded-full transition-all duration-300 
-                        ${isChecked ? 'border-primary' : 'border-gray-300 dark:border-gray-600 group-hover:border-primary/50'}">
-                    </div>
-
-                    <div class="absolute w-2.5 h-2.5 rounded-full bg-primary transition-all duration-300 transform 
-                        ${isChecked ? 'scale-100 opacity-100' : 'scale-0 opacity-0'}">
-                    </div>
+        <label class="flex items-center gap-3 p-2 cursor-pointer hover:bg-primary/5 dark:hover:bg-primary/10 rounded-xl transition-all group">
+            <div class="relative flex items-center justify-center w-5 h-5 shrink-0">
+                <input type="radio" name="subcategoria-filter" value="${id}" 
+                    class="cat-filter-radio absolute opacity-0 w-full h-full cursor-pointer z-10" 
+                    ${isChecked ? 'checked' : ''}>
+                
+                <div class="radio-circle w-full h-full border-2 rounded-full transition-all duration-300 
+                    ${isChecked ? 'border-primary' : 'border-gray-300 dark:border-gray-600 group-hover:border-primary/50'}">
                 </div>
 
-                <span class="text-sm transition-colors duration-300 truncate
-                    ${isChecked ? 'font-bold text-primary' : 'font-medium text-slate-600 dark:text-gray-300 group-hover:text-primary'}">
-                    ${nombre}
-                </span>
-            </label>
-        `;
+                <div class="radio-dot absolute w-2.5 h-2.5 rounded-full bg-primary transition-all duration-300 transform 
+                    ${isChecked ? 'scale-100 opacity-100' : 'scale-0 opacity-0'}">
+                </div>
+            </div>
+
+            <span class="radio-label text-sm transition-colors duration-300 truncate
+                ${isChecked ? 'font-bold text-primary' : 'font-medium text-slate-600 dark:text-gray-300 group-hover:text-primary'}">
+                ${nombre}
+            </span>
+        </label>
+    `;
 
         let html = crearRadioHTML('todo', 'Ver todo', idActual === 'todo');
         html += categorias.map(cat => crearRadioHTML(cat.id, cat.nombre, idActual === cat.id.toString())).join('');
 
         this.sidebarCategoriasContainer.innerHTML = html;
+
+        // ✅ FIX: Actualizar estilos visuales cuando el usuario cambia la selección
+        this.sidebarCategoriasContainer.querySelectorAll('.cat-filter-radio').forEach(radio => {
+            radio.addEventListener('change', () => {
+                // Resetear todos los radios
+                this.sidebarCategoriasContainer.querySelectorAll('.cat-filter-radio').forEach(r => {
+                    const circle = r.parentElement.querySelector('.radio-circle');
+                    const dot = r.parentElement.querySelector('.radio-dot');
+                    const label = r.closest('label').querySelector('.radio-label');
+
+                    circle.className = `radio-circle w-full h-full border-2 rounded-full transition-all duration-300 border-gray-300 dark:border-gray-600 group-hover:border-primary/50`;
+                    dot.className = `radio-dot absolute w-2.5 h-2.5 rounded-full bg-primary transition-all duration-300 transform scale-0 opacity-0`;
+                    label.className = `radio-label text-sm transition-colors duration-300 truncate font-medium text-slate-600 dark:text-gray-300 group-hover:text-primary`;
+                });
+
+                // Activar el seleccionado
+                const circle = radio.parentElement.querySelector('.radio-circle');
+                const dot = radio.parentElement.querySelector('.radio-dot');
+                const label = radio.closest('label').querySelector('.radio-label');
+
+                circle.className = `radio-circle w-full h-full border-2 rounded-full transition-all duration-300 border-primary`;
+                dot.className = `radio-dot absolute w-2.5 h-2.5 rounded-full bg-primary transition-all duration-300 transform scale-100 opacity-100`;
+                label.className = `radio-label text-sm transition-colors duration-300 truncate font-bold text-primary`;
+            });
+        });
     },
     /**
      * Actualiza las estrellas de calificación

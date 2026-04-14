@@ -1,11 +1,54 @@
 export const CarruselView = {
+
+    /**
+     * Muestra placeholders animados mientras cargan los datos.
+     * Llámalo ANTES de render() para que el usuario vea algo de inmediato.
+     */
+    mostrarSkeleton(containerId, tipo = 'banners') {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+
+        const skeletons = {
+            banners: `
+                <section class="relative w-full h-[300px] sm:h-[450px] md:h-[600px] mb-12 overflow-hidden bg-gray-100 animate-pulse">
+                    <div class="w-full h-full bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200"></div>
+                </section>`,
+            productos: `
+                <section class="container mx-auto px-4 mb-16">
+                    <div class="h-8 w-48 bg-gray-200 rounded mb-8 animate-pulse"></div>
+                    <div class="flex gap-4 overflow-hidden">
+                        ${Array(4).fill(`
+                            <div class="w-[85vw] sm:w-[calc(50%-1rem)] lg:w-[calc(25%-1rem)] flex-shrink-0 bg-white border p-4 rounded-xl animate-pulse">
+                                <div class="h-48 bg-gray-100 rounded-lg mb-4"></div>
+                                <div class="h-4 bg-gray-200 rounded mb-2"></div>
+                                <div class="h-6 w-24 bg-gray-200 rounded mb-4"></div>
+                                <div class="h-8 bg-gray-100 rounded"></div>
+                            </div>`).join('')}
+                    </div>
+                </section>`,
+            categorias: `
+                <section class="container mx-auto px-4 mb-16">
+                    <div class="h-8 w-48 bg-gray-200 rounded mb-10 mx-auto animate-pulse"></div>
+                    <div class="flex gap-6 justify-center">
+                        ${Array(5).fill(`
+                            <div class="flex-shrink-0 w-24 text-center animate-pulse">
+                                <div class="w-20 h-20 rounded-full bg-gray-200 mx-auto mb-3"></div>
+                                <div class="h-3 w-16 bg-gray-200 rounded mx-auto"></div>
+                            </div>`).join('')}
+                    </div>
+                </section>`
+        };
+
+        container.innerHTML = skeletons[tipo] || skeletons.banners;
+    },
+
     render(carrusel, containerId) {
         const container = document.getElementById(containerId);
         if (!container || !carrusel) return;
 
-        if (container.dataset.initialized !== "true") {
+        if (container.dataset.initialized !== 'true') {
             container.innerHTML = '';
-            container.dataset.initialized = "true";
+            container.dataset.initialized = 'true';
         }
 
         let html = '';
@@ -17,18 +60,24 @@ export const CarruselView = {
         }
 
         container.insertAdjacentHTML('beforeend', html);
-        this._initCarouselLogic(carrusel.id, carrusel.tipo);
+
+        // CORRECCIÓN: diferir la lógica de interactividad para no bloquear el pintado
+        const initFn = () => this._initCarouselLogic(carrusel.id, carrusel.tipo);
+        if ('requestIdleCallback' in window) {
+            requestIdleCallback(initFn, { timeout: 2000 });
+        } else {
+            setTimeout(initFn, 100);
+        }
     },
 
     _initCarouselLogic(carruselId, tipo) {
         const slider = document.getElementById(`slider-${carruselId}`);
         if (!slider) return;
 
-        // Buscamos el contenedor de puntos específico para este carrusel
         const dotsContainer = document.getElementById(`dots-${carruselId}`);
         const parent = slider.parentElement;
 
-        // 1. Lógica de Autoplay (Solo para Banners)
+        // 1. Autoplay solo para banners
         if (tipo === 'banners') {
             let isHovered = false;
             parent.addEventListener('mouseenter', () => isHovered = true);
@@ -37,7 +86,6 @@ export const CarruselView = {
             setInterval(() => {
                 if (isHovered) return;
                 const maxScroll = slider.scrollWidth - slider.clientWidth;
-
                 if (slider.scrollLeft >= maxScroll - 10) {
                     slider.scrollTo({ left: 0, behavior: 'smooth' });
                 } else {
@@ -46,15 +94,14 @@ export const CarruselView = {
             }, 5000);
         }
 
-        // 2. Sincronización de Indicadores (Dots) al hacer Scroll
+        // 2. Sincronización de dots al hacer scroll
         slider.addEventListener('scroll', () => {
             if (!dotsContainer) return;
 
-            // Calculamos el índice actual
-            // Si es banner, el paso es el ancho del slider. 
-            // Si es producto/categoría, el paso es el ancho de la tarjeta + gap.
             const firstItem = slider.firstElementChild;
-            const step = (tipo === 'banners') ? slider.clientWidth : (firstItem ? firstItem.offsetWidth + 16 : slider.clientWidth);
+            const step = (tipo === 'banners')
+                ? slider.clientWidth
+                : (firstItem ? firstItem.offsetWidth + 16 : slider.clientWidth);
 
             const index = Math.round(slider.scrollLeft / step);
             const dots = dotsContainer.querySelectorAll('.dot-indicator');
@@ -70,37 +117,32 @@ export const CarruselView = {
             });
         });
     },
+
     scrollToSlide(carruselId, index) {
         const slider = document.getElementById(`slider-${carruselId}`);
         if (slider) {
-            slider.scrollTo({
-                left: slider.clientWidth * index,
-                behavior: 'smooth'
-            });
+            slider.scrollTo({ left: slider.clientWidth * index, behavior: 'smooth' });
         }
     },
 
-    _renderMedia(item, imgClasses = "w-full h-full object-contain") {
+    _renderMedia(item, imgClasses = 'w-full h-full object-contain') {
         if (item.imagen && item.imagen.includes('fa-')) {
             return `<i class="${item.imagen} text-3xl md:text-5xl text-gray-600"></i>`;
         }
         return `<img src="${item.imagen || 'https://via.placeholder.com/300'}" alt="${item.titulo}" class="${imgClasses}" loading="lazy">`;
     },
 
-    // BANNERS: Sin texto si los campos están vacíos
     _generateHeroSection(carrusel) {
         window.scrollToSlide = this.scrollToSlide;
         return `
         <section class="relative w-full h-[300px] sm:h-[450px] md:h-[600px] mb-12 group overflow-hidden">
             <div class="flex w-full h-full overflow-x-auto snap-x snap-mandatory no-scrollbar scroll-smooth touch-pan-x" id="slider-${carrusel.id}">
                 ${carrusel.items.map(item => {
-            // Verificación estricta de contenido
-            const hasText = (item.titulo && item.titulo.trim() !== "") || (item.subtitulo && item.subtitulo.trim() !== "");
-
+            const hasText = (item.titulo && item.titulo.trim() !== '') || (item.subtitulo && item.subtitulo.trim() !== '');
             return `
                     <div class="w-full flex-shrink-0 h-full snap-center relative">
                         ${item.link ? `<a href="${item.link}" class="block w-full h-full">` : ''}
-                        <img class="w-full h-full object-cover" src="${item.imagen}" />
+                        <img class="w-full h-full object-cover" src="${item.imagen}" alt="${item.titulo}" loading="lazy"/>
                         ${hasText ? `
                             <div class="absolute inset-0 bg-black/30 flex items-center justify-start px-14 md:px-24">
                                 <div class="max-w-2xl text-white pr-10">
@@ -123,14 +165,13 @@ export const CarruselView = {
                 <span class="material-icons">chevron_right</span>
             </button>
 
-            <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 bg-black/20 backdrop-blur-md p-2 rounded-full z-10">
+            <div id="dots-${carrusel.id}" class="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 bg-black/20 backdrop-blur-md p-2 rounded-full z-10">
                 ${carrusel.items.map((_, i) => `
-                    <div onclick="scrollToSlide('${carrusel.id}', ${i})" 
-                         class="dot ${i === 0 ? 'bg-primary w-6' : 'bg-white/60 w-2'} h-2 rounded-full cursor-pointer transition-all"></div>
+                    <div onclick="scrollToSlide('${carrusel.id}', ${i})"
+                         class="dot-indicator ${i === 0 ? 'bg-primary w-6' : 'bg-white/60 w-2'} h-2 rounded-full cursor-pointer transition-all"></div>
                 `).join('')}
             </div>
-        </section>
-        `;
+        </section>`;
     },
 
     _generateProductGrid(carrusel) {
@@ -142,49 +183,53 @@ export const CarruselView = {
                     ${carrusel.items.map(item => `
                         <div class="w-[85vw] sm:w-[calc(50%-1rem)] lg:w-[calc(25%-1rem)] flex-shrink-0 snap-center bg-white border p-4 rounded-xl shadow-sm">
                             <div class="h-48 mb-4 flex items-center justify-center bg-gray-50 rounded-lg overflow-hidden">
-                                ${this._renderMedia(item, "max-h-full object-contain")}
+                                ${this._renderMedia(item, 'max-h-full object-contain')}
                             </div>
                             <h3 class="font-bold text-gray-800 uppercase text-xs truncate">${item.titulo}</h3>
                             <p class="text-primary font-black text-xl my-2">${item.subtitulo}</p>
                             <a href="${item.link}" class="block w-full text-center bg-gray-900 text-white py-2 rounded-lg font-bold text-[10px] hover:bg-primary uppercase transition-colors">Ver Detalles</a>
                         </div>`).join('')}
                 </div>
-                <button onclick="document.getElementById('slider-${carrusel.id}').scrollBy({left: -slider.clientWidth, behavior: 'smooth'})"
-                    class="absolute -left-4 top-1/2 bg-white shadow-md border w-8 h-8 flex items-center justify-center z-20 rounded-full"><span class="material-icons">chevron_left</span></button>
-                <button onclick="document.getElementById('slider-${carrusel.id}').scrollBy({left: slider.clientWidth, behavior: 'smooth'})"
-                    class="absolute -right-4 top-1/2 bg-white shadow-md border w-8 h-8 flex items-center justify-center z-20 rounded-full"><span class="material-icons">chevron_right</span></button>
+
+                <!-- CORRECCIÓN: se usa una variable local 's' en lugar de 'slider' que no existe en este scope -->
+                <button onclick="const s=document.getElementById('slider-${carrusel.id}'); s.scrollBy({left: -s.clientWidth, behavior: 'smooth'})"
+                    class="absolute -left-4 top-1/2 bg-white shadow-md border w-8 h-8 flex items-center justify-center z-20 rounded-full">
+                    <span class="material-icons">chevron_left</span>
+                </button>
+                <button onclick="const s=document.getElementById('slider-${carrusel.id}'); s.scrollBy({left: s.clientWidth, behavior: 'smooth'})"
+                    class="absolute -right-4 top-1/2 bg-white shadow-md border w-8 h-8 flex items-center justify-center z-20 rounded-full">
+                    <span class="material-icons">chevron_right</span>
+                </button>
             </div>
-            <div class="flex justify-center gap-2 mt-6">
-                ${carrusel.items.map((_, i) => `<div class="dot ${i === 0 ? 'bg-primary w-6' : 'bg-gray-300 w-2'} h-2 rounded-full transition-all"></div>`).join('')}
+
+            <div id="dots-${carrusel.id}" class="flex justify-center gap-2 mt-6">
+                ${carrusel.items.map((_, i) => `
+                    <div class="dot-indicator ${i === 0 ? 'bg-primary w-6' : 'bg-gray-300 w-2'} h-2 rounded-full transition-all"></div>
+                `).join('')}
             </div>
-        </section>
-        `;
+        </section>`;
     },
 
     _generateCategoryGrid(carrusel) {
         return `
-    <section class="container mx-auto px-4 mb-16 relative" id="section-${carrusel.id}">
-        <h2 class="text-center text-xl md:text-2xl font-black mb-10 uppercase">${carrusel.nombre}</h2>
-        <div class="relative px-10">
-            <div class="flex overflow-x-auto snap-x snap-mandatory no-scrollbar scroll-smooth gap-4 md:gap-10" id="slider-${carrusel.id}">
-                ${carrusel.items.map(item => {
-            // CONSTRUCCIÓN DEL LINK: 
-            // Si el item tiene un nombre de categoría, forzamos la ruta al catálogo
+        <section class="container mx-auto px-4 mb-16 relative" id="section-${carrusel.id}">
+            <h2 class="text-center text-xl md:text-2xl font-black mb-10 uppercase">${carrusel.nombre}</h2>
+            <div class="relative px-10">
+                <div class="flex overflow-x-auto snap-x snap-mandatory no-scrollbar scroll-smooth gap-4 md:gap-10" id="slider-${carrusel.id}">
+                    ${carrusel.items.map(item => {
             const destino = `productos.html?categoria=${encodeURIComponent(item.titulo)}`;
-
             return `
-                    <a href="${destino}" class="flex-shrink-0 w-24 md:w-36 text-center group snap-center">
-                        <div class="w-20 h-20 md:w-32 md:h-32 rounded-full bg-gray-50 border-2 border-transparent group-hover:border-primary flex items-center justify-center mx-auto transition-all shadow-inner overflow-hidden mb-3">
-                            ${this._renderMedia(item, "w-1/2 h-1/2 object-contain group-hover:scale-110 transition-transform")}
-                        </div>
-                        <span class="text-[9px] md:text-xs font-black uppercase text-gray-600 group-hover:text-primary tracking-widest block leading-tight">
-                            ${item.titulo}
-                        </span>
-                    </a>`;
+                        <a href="${destino}" class="flex-shrink-0 w-24 md:w-36 text-center group snap-center">
+                            <div class="w-20 h-20 md:w-32 md:h-32 rounded-full bg-gray-50 border-2 border-transparent group-hover:border-primary flex items-center justify-center mx-auto transition-all shadow-inner overflow-hidden mb-3">
+                                ${this._renderMedia(item, 'w-1/2 h-1/2 object-contain group-hover:scale-110 transition-transform')}
+                            </div>
+                            <span class="text-[9px] md:text-xs font-black uppercase text-gray-600 group-hover:text-primary tracking-widest block leading-tight">
+                                ${item.titulo}
+                            </span>
+                        </a>`;
         }).join('')}
+                </div>
             </div>
-            </div>
-        </section>
-    `;
+        </section>`;
     }
 };

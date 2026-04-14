@@ -30,7 +30,16 @@
     <link rel="icon" type="image/svg+xml" href="images/logo-cosmos-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="images/logo-cosmos-icon.png">
     <link rel="apple-touch-icon" sizes="180x180" href="images/logo-cosmos-icon.png">
-    <link rel="manifest" href="site.webmanifest">
+
+    <!-- PING: despierta Supabase mientras el browser descarga los JS -->
+    <script>
+        fetch('https://bhbbjvcoujxzqaqjqnti.supabase.co/rest/v1/carruseles?select=id&limit=1&activo=eq.true', {
+            headers: {
+                'apikey': 'sb_publishable_C_OFBl6KdorQVKjnHFBUyg_DamW_LmK',
+                'Authorization': 'Bearer sb_publishable_C_OFBl6KdorQVKjnHFBUyg_DamW_LmK'
+            }
+        }).catch(() => {});
+    </script>
 
     <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -98,7 +107,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
     <script src="js/config/tailwindConfig.js"></script>
-    <script type="module" src="js/controllers/configController.js"></script>
+    <!-- ELIMINADO: configController.js — ahora lo maneja main.js -->
     <script type="module" src="js/main.js"></script>
 </body>
 

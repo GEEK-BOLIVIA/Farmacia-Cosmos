@@ -4,65 +4,61 @@ import { carruselController } from './controllers/carruselController.js';
 import { CarruselView } from './views/carruselView.js';
 import { CategoriasController } from './controllers/categoriasController.js';
 import { CartController } from './controllers/cartController.js';
-// Importamos el controlador del buscador (él se encargará de importar su View)
 import { SearchController } from './controllers/searchController.js';
+import { ConfigController } from './controllers/configController.js';
 
 const App = {
     async init() {
         try {
-            // 1. Cargar el Layout (Header, Nav y Footer)
-            await LayoutController.render('./');
-
-            // 2. Cargar el Carrito Lateral
-            await this.cargarCarrito();
-            CartController.init();
-
-            // 3. Inicializar el Navbar
-            const navContainer = document.getElementById('layout-nav');
-            if (navContainer) {
-                const resp = await fetch('components/navbar.html');
-                const html = await resp.text();
-                navContainer.innerHTML = html;
-
-                // IMPORTANTE: Primero cargamos los datos de las categorías (esto inyecta el HTML dinámico)
-                await CategoriasController.init();
-
-                // DESPUÉS inicializamos los eventos de los botones (Burger y Categorías)
-                this.setupMobileMenuEvents();
-            }
-
-            // --- BUSCADOR GLOBAL ---
-            try {
-                await SearchController.init();
-                console.log("[App] Buscador inicializado");
-            } catch (searchErr) {
-                console.error("Error buscador:", searchErr);
-            }
-
-            // 4. Lógica de Carruseles (Solo en Inicio)
+            // ── FASE 1: Config + Skeletons en paralelo (0ms de espera visual) ──
             const hub = document.getElementById('carruseles-hub');
-            if (hub) {
-                const carruseles = await carruselController.obtenerContenidoGlobal();
-                if (carruseles && carruseles.length > 0) {
-                    carruseles.forEach(seccion => {
-                        CarruselView.render(seccion, 'carruseles-hub');
-                    });
-                }
-            }
+            if (hub) CarruselView.mostrarSkeleton('carruseles-hub', 'banners');
+
+            // Config se lanza junto con todo lo demás — un solo cliente Supabase
+            await Promise.all([
+                ConfigController.init(),
+                this._cargarContenido(hub)
+            ]);
 
         } catch (error) {
             console.error("Error en App.init:", error);
         }
     },
 
+    async _cargarContenido(hub) {
+        const [carruseles] = await Promise.all([
+            hub ? carruselController.obtenerContenidoGlobal() : Promise.resolve([]),
+            this._inicializarUI()
+        ]);
 
-    async cargarCarrito() {
+        if (hub && carruseles && carruseles.length > 0) {
+            hub.innerHTML = '';
+            hub.removeAttribute('data-initialized');
+            carruseles.forEach(seccion => {
+                CarruselView.render(seccion, 'carruseles-hub');
+            });
+        }
+    },
+
+    async _inicializarUI() {
+        await LayoutController.render('./');
+
+        await Promise.all([
+            this._cargarCarrito(),
+            CategoriasController.init().then(() => this.setupMobileMenuEvents())
+        ]);
+
+        SearchController.init().catch(err => console.error("Error buscador:", err));
+    },
+
+    async _cargarCarrito() {
         try {
             const targetContainer = document.getElementById('layout-cart') || document.body;
             const response = await fetch('components/carrito.html');
             const html = await response.text();
             targetContainer.insertAdjacentHTML('beforeend', html);
             this.setupCartEvents();
+            CartController.init();
         } catch (err) {
             console.error("Error al cargar carrito.html:", err);
         }
@@ -105,21 +101,18 @@ const App = {
 
         const checkoutBtn = document.getElementById('checkout-whatsapp');
         if (checkoutBtn) {
-            checkoutBtn.addEventListener('click', () => {
-                CartController.enviarWhatsApp();
-            });
+            checkoutBtn.addEventListener('click', () => CartController.enviarWhatsApp());
         }
     },
+
     setupMobileMenuEvents() {
         const categoriesBtn = document.getElementById('categories-toggle');
         const categoriesMenu = document.getElementById('categories-dropdown-menu');
         const arrow = document.getElementById('categories-arrow');
-
         const burgerBtn = document.getElementById('mobile-menu-open-button');
         const accordionMenu = document.getElementById('mobile-accordion-menu');
         const burgerIcon = document.getElementById('burger-icon');
 
-        // 1. Toggle para Escritorio (Dropdown)
         const toggleDropdown = (e) => {
             if (e) e.stopPropagation();
             const isHidden = categoriesMenu.classList.contains('hidden');
@@ -138,14 +131,11 @@ const App = {
             }
         };
 
-        // 2. Toggle para Móvil (Acordeón)
         const toggleAccordion = () => {
             const isHidden = accordionMenu.classList.contains('hidden');
-
             if (isHidden) {
                 accordionMenu.classList.remove('hidden');
                 burgerIcon.innerText = 'close';
-                // Damos un tiempo para que el navegador calcule el scrollHeight
                 const height = accordionMenu.scrollHeight;
                 setTimeout(() => {
                     accordionMenu.style.maxHeight = `${height + 100}px`;
@@ -153,18 +143,15 @@ const App = {
             } else {
                 accordionMenu.style.maxHeight = '0px';
                 burgerIcon.innerText = 'menu';
-                setTimeout(() => {
-                    accordionMenu.classList.add('hidden');
-                }, 300);
+                setTimeout(() => accordionMenu.classList.add('hidden'), 300);
             }
         };
 
         if (categoriesBtn) categoriesBtn.onclick = toggleDropdown;
         if (burgerBtn) burgerBtn.onclick = toggleAccordion;
 
-        // Cerrar el dropdown de PC al hacer clic fuera
         window.addEventListener('click', (e) => {
-            if (categoriesMenu && !categoriesMenu.contains(e.target) && !categoriesBtn.contains(e.target)) {
+            if (categoriesMenu && !categoriesMenu.contains(e.target) && !categoriesBtn?.contains(e.target)) {
                 if (!categoriesMenu.classList.contains('hidden')) toggleDropdown();
             }
         });
